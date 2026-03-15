@@ -1,9 +1,9 @@
 === WC Fields Factory ===
-Contributors: mycholan, sarkware, sarkparanjothi, kishor88, bharathiraja9965
+Contributors: mycholan, sarkware
 Tags: wc fields factory, custom product fields, custom admin fields, overriding product price, custom woocommerce fee, customize woocommerce product page, add custom fields to woocommerce product page, custom fields validations, wmpl compatibility 
 Requires at least: 3.5
-Tested up to: 6.4.1
-Stable tag: 4.1.8
+Tested up to: 6.9.4
+Stable tag: 4.1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,15 +83,15 @@ WC Fields Factory expose custom fields to wooCommerce rest api (for both product
 Also added support for CoCart Headless ecommerce plugin.
 
 = Documentation =
-* [Product Fields](https://wcfieldsfactory.com/user-guide/fields-for-woocommerce-products/)
-* [Variation Fields](https://wcfieldsfactory.com/user-guide/fields-for-woocommerce-variations/)
-* [Admin Fields](https://wcfieldsfactory.com/user-guide/fields-for-woocommerce-admin/)
-* [Pricing & Fee Rules](https://wcfieldsfactory.com/user-guide/custom-pricing-cart-fee/)
+* [Product Fields](https://wcfieldsfactory.in/user-guide/fields-for-woocommerce-products/)
+* [Variation Fields](https://wcfieldsfactory.in/user-guide/fields-for-woocommerce-variations/)
+* [Admin Fields](https://wcfieldsfactory.in/user-guide/fields-for-woocommerce-admin/)
+* [Pricing & Fee Rules](https://wcfieldsfactory.in/user-guide/custom-pricing-cart-fee/)
 * [Multilingual](https://sarkware.com/multilingual-wc-fields-factory/)
 * [Troubleshoot](https://sarkware.com/troubleshoot-wc-fields-factory/)
 * [WC Fields Factory APIs](https://sarkware.com/wc-fields-factory-api/)
 * [Overriding Product Prices](https://sarkware.com/woocommerce-change-product-price-dynamically-while-adding-to-cart-without-using-plugins/#override-price-wc-fields-factory)
-* [Customize Rendering Behavior](https://wcfieldsfactory.com/developer-reference/change-fields-rendering-behaviour/)
+* [Customize Rendering Behavior](https://wcfieldsfactory.in/developer-reference/change-fields-rendering-behaviour/)
 
 == Installation ==
 1. Ensure you have latest version of WooCommerce plugin installed ( 2.2 or above )
@@ -108,6 +108,10 @@ Also added support for CoCart Headless ecommerce plugin.
 5. Wcff Fee Rules View
 
 == Changelog ==
+
+= 4.1.9 =
+* Latest Wordpress & Woocommerce compatibility
+* Minor fix for pricing rule issue
 
 = 4.1.8 =
 * WooCommerce HPOS compatibility enabled

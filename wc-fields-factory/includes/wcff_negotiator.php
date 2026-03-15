@@ -179,7 +179,7 @@ class wcff_negotiator {
         if (($_rule && isset($_rule["expected_value"]) && isset($_rule["logic"]) && ! empty($_value)) || $_ftype == "datepicker") {
             if ($_ftype != "checkbox" && $_ftype != "datepicker") {
                 if ($_rule["logic"] == "equal") {
-                    return ($_rule["expected_value"] == $_value);
+                    return (trim($_rule["expected_value"]) == trim($_value));
                 } else if ($_rule["logic"] == "not-equal") {
                     return ($_rule["expected_value"] != $_value);
                 } else if ($_rule["logic"] == "greater-than" && is_numeric($_rule["expected_value"]) && is_numeric($_value)) {

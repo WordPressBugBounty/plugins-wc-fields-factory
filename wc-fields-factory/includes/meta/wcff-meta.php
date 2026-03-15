@@ -38,7 +38,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/text-box/"
+        "document" => "https://wcfieldsfactory.in/fields/text-box/"
     ),
     "number" => array(
         "meta" => array(
@@ -95,7 +95,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/number-field/"
+        "document" => "https://wcfieldsfactory.in/fields/number-field/"
     ),
     "email" => array(
         "meta" => array(
@@ -125,7 +125,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/email-field/"
+        "document" => "https://wcfieldsfactory.in/fields/email-field/"
     ),
     "hidden" => array(
         "meta" => array(
@@ -145,7 +145,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/hidden-field/"
+        "document" => "https://wcfieldsfactory.in/fields/hidden-field/"
     ),
     "label" => array(
         "meta" => array(
@@ -224,7 +224,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/label-field/"
+        "document" => "https://wcfieldsfactory.in/fields/label-field/"
     ),
     "textarea" => array(
         "meta" => array(
@@ -272,7 +272,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/text-area/"
+        "document" => "https://wcfieldsfactory.in/fields/text-area/"
     ),
     "checkbox" => array(
         "meta" => array(
@@ -324,7 +324,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/check-box/"
+        "document" => "https://wcfieldsfactory.in/fields/check-box/"
     ),
     "radio" => array(
         "meta" => array(
@@ -416,7 +416,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/radio-button/"
+        "document" => "https://wcfieldsfactory.in/fields/radio-button/"
     ),
     "select" => array(
         "meta" => array(
@@ -456,7 +456,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/select-box/"
+        "document" => "https://wcfieldsfactory.in/fields/select-box/"
     ),
     "datepicker" => array(
         "meta" => array(
@@ -1232,7 +1232,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/date-picker/"
+        "document" => "https://wcfieldsfactory.in/fields/date-picker/"
     ),
     "colorpicker" => array(
         "meta" => array(
@@ -1362,7 +1362,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/color-picker/"
+        "document" => "https://wcfieldsfactory.in/fields/color-picker/"
     ),
     "file" => array(
         "meta" => array(
@@ -1450,7 +1450,7 @@ return array(
             "wccvf",
             "wcccf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/file-upload/"
+        "document" => "https://wcfieldsfactory.in/fields/file-upload/"
     ),
     "image" => array(
         "meta" => array(
@@ -1486,7 +1486,7 @@ return array(
         "support" => array(
             "wccaf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/image-upload/"
+        "document" => "https://wcfieldsfactory.in/fields/image-upload/"
     ),
     "url" => array(
         "meta" => array(
@@ -1576,7 +1576,7 @@ return array(
         "support" => array(
             "wccaf"
         ),
-        "document" => "https://wcfieldsfactory.com/fields/url-field/"
+        "document" => "https://wcfieldsfactory.in/fields/url-field/"
     )
 );
 

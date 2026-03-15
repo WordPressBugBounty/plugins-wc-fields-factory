@@ -2,14 +2,14 @@
 /**
  *
  * Plugin Name: WC Fields Factory
- * Plugin URI: https://wcfieldsfactory.com/
+ * Plugin URI: https://wcfieldsfactory.in/
  * Description: Sell your products with personalised options. Add custom fields to your products, variations, checkout, order and your admin screens.
- * Version: 4.1.8
+ * Version: 4.1.9
  * Author: Saravana Kumar K
- * Author URI: https://wcfieldsfactory.com/
+ * Author URI: https://wcfieldsfactory.in/
  * License: GPL
  * Copyright: sarkware
- * WC tested up to: 8.2.2
+ * WC tested up to: 10.6.1
  *
  */
 if (!defined( 'ABSPATH' )) { exit; }
@@ -47,7 +47,9 @@ class wcff {
     /* Pricing & Fee handler instance - could be accessed by "wcff()->negotiator" */
     $negotiator,
     /* Order handler instance - could be accessed by "wcff()->order" */
-    $order,
+    $order,    
+    /* Checkout module */
+    $checkout,
     /* Option object - could be accessed by "wcff()->option" */
     $option,
     /* Html builder object reference - could be accessed by "wcff()->builder" */
@@ -61,7 +63,7 @@ class wcff {
     /* Holds the Ajax response object which will be sent back to Client - could be accessed by "wcff()->response" */
     $response,
     /* Loaded flaq */
-    $loaded;
+    $loaded;    
     
     public function __construct() {
         

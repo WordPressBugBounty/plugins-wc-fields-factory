@@ -774,7 +774,7 @@
 			if ((_rule && _rule["expected_value"] && _rule["logic"] && _value != "") || _ftype == "datepicker") {
 				if (_ftype != "checkbox" && _ftype != "datepicker") {
 	                if (_rule["logic"] == "equal") {
-	                    return (_rule["expected_value"] == _value);
+	                    return (_rule["expected_value"].trim() == _value.trim());
 	                } else if (_rule["logic"] == "not-equal") {
 	                    return (_rule["expected_value"] != _value);
 	                } else if (_rule["logic"] == "greater-than") {
