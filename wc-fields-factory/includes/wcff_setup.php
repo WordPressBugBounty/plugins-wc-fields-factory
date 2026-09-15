@@ -28,6 +28,8 @@ class wcff_setup {
         add_filter('disable_months_dropdown', array($this, 'disable_month_filter'));
         add_filter('parse_query', array($this, 'intercept_wp_query'));
         add_filter('the_posts', array($this, 'apply_wcff_filters'), 10, 2);
+        add_action( 'admin_notices', array($this, 'wcff_customization_admin_notice') );
+        define( 'WCFF_SUPPORT_PHONE', '9489672035' );
 
         //add_action('plugins_loaded', array($this, 'db_sanity_check'));
         //add_action('upgrader_process_complete', array($this, 'after_wcff_updated'), 10, 2);
@@ -526,6 +528,39 @@ class wcff_setup {
         }
 
     }
+
+    
+ /**
+ * Display WooCommerce customization service notice.
+ */
+  public function wcff_customization_admin_notice() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    ?>
+    <div class="notice notice-info is-dismissible" style="background-color: blanchedalmond;">
+        <p>
+            <strong><?php _e('Need help with WooCommerce customization?', 'wc-fields-factory'); ?></strong>
+        </p>
+
+        <p>
+            <?php _e('We provide WooCommerce development, customization, troubleshooting and product-field solutions.', 'wc-fields-factory'); ?>
+            <?php _e('troubleshooting and product-field solutions.', 'wc-fields-factory'); ?>
+        </p>
+
+        <p>
+            &nbsp;
+            <strong>WhatsApp:</strong>
+            <a href="https://wa.me/<?php echo WCFF_SUPPORT_PHONE; ?>"
+               target="_blank"
+               rel="noopener noreferrer">
+                <?php _e('Chat with us', 'wc-fields-factory'); ?>
+            </a>
+        </p>
+    </div>
+    <?php
+}
     
 }
 

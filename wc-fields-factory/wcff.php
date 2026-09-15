@@ -4,7 +4,7 @@
  * Plugin Name: WC Fields Factory
  * Plugin URI: https://wcfieldsfactory.in/
  * Description: Sell your products with personalised options. Add custom fields to your products, variations, checkout, order and your admin screens.
- * Version: 4.1.9
+ * Version: 4.1.10
  * Author: Saravana Kumar K
  * Author URI: https://wcfieldsfactory.in/
  * License: GPL
@@ -27,43 +27,25 @@ include_once('includes/wcff_loader.php');
 
 class wcff {
     
-    var
-    /* Version number and root path details - could be accessed by "wcff()->info" */
-    $info,
-    /* Data Access Object reference - could be accessed by "wcff()->dao" */
-    $dao,
-    /* Fields interface - could be accessed by "wcff()->field" */
-    $field,
-    /* Fields injector instance - could be accessed by "wcff()->injector" */
-    $injector,
-    /* Fields Persister instance (which mine the REQUEST object and store the custom fields as Cart Item Data) - could be accessed by "wcff()->persister" */
-    $persister,
-    /* Fields Data Renderer instance - on Cart & Checkout - could be accessed by "wcff()->renderer" */
-    $renderer,
-    /* Fields Editor instance - on Cart & Checkout (though editing option won't works on Checkout) - could be accessed by "wcff()->editor" */
-    $editor,
-    /* Used to split the cart item (if the quantity is more than one and cloning is enabled) */
-    $splitter,
-    /* Pricing & Fee handler instance - could be accessed by "wcff()->negotiator" */
-    $negotiator,
-    /* Order handler instance - could be accessed by "wcff()->order" */
-    $order,    
-    /* Checkout module */
-    $checkout,
-    /* Option object - could be accessed by "wcff()->option" */
-    $option,
-    /* Html builder object reference - could be accessed by "wcff()->builder" */
-    $builder,
-    /* Fields Validator instance - could be accessed by "wcff()->validator" */
-    $validator,
-    /* Fields Translator instance - could be accessed by "wcff()->locale" */
-    $locale,
-    /* Holds the Ajax request object comes from WC Fields Factory Admin Interfce - could be accessed by "wcff()->request" */
-    $request,
-    /* Holds the Ajax response object which will be sent back to Client - could be accessed by "wcff()->response" */
-    $response,
-    /* Loaded flaq */
-    $loaded;    
+
+     public $info; // Holds the most wanted values like path, dir, version etc
+    public $dao; // Holds the instance of wcff_dao class
+    public $field; // Holds the instance of wcff_field class
+    public $injector; // Holds the instance of wcff_injector class
+    public $persister; // Holds the instance of wcff_persister class
+    public $renderer; // Holds the instance of wcff_renderer class
+    public $editor; //  Holds the instance of wcff_editor class
+    public $splitter; //  Holds the instance of wcff_splitter class
+    public $negotiator; //  Holds the instance of wcff_negotiator class
+    public $order; //  Holds the instance of wcff_order class
+    public $checkout; //  Holds the instance of wcff_checkout class
+    public $option; //  Holds the instance of wcff_option class
+    public $builder; //  Holds the instance of wcff_builder class
+    public $validator; //  Holds the instance of wcff_validator class
+    public $locale; //  Holds the instance of wcff_locale class
+    public $request; //  Holds the instance of wcff_request class
+    public $response; //  Holds the instance of wcff_response class
+    public $loaded; //  Holds the instance of wcff_response class
     
     public function __construct() {
         
@@ -75,7 +57,7 @@ class wcff {
             'views'				=> plugin_dir_path(__FILE__) ."views",
             'inc'				=> plugin_dir_path(__FILE__) ."includes",
             'basename'          => plugin_basename(__FILE__),
-            'version'			=> '4.1.8'
+            'version'			=> '4.1.10'
         );
         
         /* Deactivation hook for cleanup */

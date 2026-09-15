@@ -1,9 +1,9 @@
 === WC Fields Factory ===
-Contributors: mycholan, sarkware
-Tags: wc fields factory, custom product fields, custom admin fields, overriding product price, custom woocommerce fee, customize woocommerce product page, add custom fields to woocommerce product page, custom fields validations, wmpl compatibility 
+Contributors: mycholan, sarkware, Palaniyappan
+Tags: custom product fields, custom admin fields, overriding product price, custom woocommerce fee, customize woocommerce product page, add custom fields to woocommerce product page
 Requires at least: 3.5
 Tested up to: 6.9.4
-Stable tag: 4.1.9
+Stable tag: 4.1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -549,3 +549,9 @@ Also added support for CoCart Headless ecommerce plugin.
 
 = 1.0.0 =
 * First Public Release.
+
+
+== Changelog ==
+= 4.1.10 =
+* Added WooCommerce customization support notice.
+* Added WhatsApp contact option.
