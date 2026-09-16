@@ -356,7 +356,7 @@ class wcff_post_handler {
 var wcff_var = {
 	post_id : <?php echo $post->ID; ?>,
 	post_type : "<?php echo $post->post_type; ?>",
-	nonce  : "<?php echo wp_create_nonce(get_current_screen()->id .'_nonce'); ?>",
+	nonce  : "<?php echo esc_js(wp_create_nonce('wcff_ajax')); ?>",
 	admin_url : "<?php echo esc_url(admin_url()); ?>",
 	ajaxurl : "<?php echo esc_url(admin_url('admin-ajax.php')); ?>",
 	version : "<?php echo wcff()->info["version"]; ?>",	

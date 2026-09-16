@@ -255,7 +255,7 @@ class wcff_post_list_table extends WP_List_Table {
 		        );
 		    }
 		    
-		    $entry['clone_group'] = '<a href="'. wp_nonce_url('?post_type=wccvf&amp;action=wcff_clone_group&amp;post='.$post->ID ) .'" class="wcff_clone_group" title="'. __('Duplicate this fields group', 'wc-fields-factory') .'">' . __('Clone', 'wc-fields-factory') . '</a>';
+		    $entry['clone_group'] = '<a href="'. wp_nonce_url(admin_url('admin.php?post_type=wccvf&action=wcff_clone_group&post='. absint($post->ID)), 'wcff_clone_group_' . absint($post->ID)) .'" class="wcff_clone_group" title="'. __('Duplicate this fields group', 'wc-fields-factory') .'">' . __('Clone', 'wc-fields-factory') . '</a>';
 		    
 		    $entry["fields_count"] = $this->get_fields_count($post->ID);		    
 		    $res[] = $entry;

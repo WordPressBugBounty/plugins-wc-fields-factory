@@ -29,7 +29,8 @@ class wcff_setup {
         add_filter('parse_query', array($this, 'intercept_wp_query'));
         add_filter('the_posts', array($this, 'apply_wcff_filters'), 10, 2);
         add_action( 'admin_notices', array($this, 'wcff_customization_admin_notice') );
-        define( 'WCFF_SUPPORT_PHONE', '9489672035' );
+        define( 'WCFF_SUPPORT_PHONE', '+919489672035' );
+        define( 'WCFF_SUPPORT_EMAIL', 'gstech1002@gmail.com' );
 
         //add_action('plugins_loaded', array($this, 'db_sanity_check'));
         //add_action('upgrader_process_complete', array($this, 'after_wcff_updated'), 10, 2);
@@ -374,12 +375,13 @@ class wcff_setup {
 					$.ajax({  
 						type       : "POST",  
 						data       : {
-							action: "wcff_ajax", 
+							action: "wcff_ajax",
+							wcff_nonce: "<?php echo esc_js(wp_create_nonce('wcff_ajax')); ?>",
 							wcff_param: JSON.stringify({
 								"method": "GET",
 								"context": $(this).val(),
 								"post": 0,
-								"post_type": "<?php echo get_current_screen()->post_type; ?>",
+								"post_type": "<?php echo esc_js(get_current_screen()->post_type); ?>",
 								"payload":{}
 							})
 						},  
@@ -501,7 +503,7 @@ class wcff_setup {
     	if ($_post->post_type =="wccpf" || $_post->post_type =="wccaf" || $_post->post_type =="wccvf") {
     		/* Remove quick edit link - as it is not necessary here */
     		unset($_actions["inline hide-if-no-js"]);
-    		$_actions['clone_group'] = '<a href="'. wp_nonce_url('?post_type='. $_post->post_type .'&amp;action=wcff_clone_group&amp;post='.$_post->ID ) .'" class="wcff_clone_group" title="'. __('Duplicate this fields group', 'wc-fields-factory') .'">' . __('Clone', 'wc-fields-factory') . '</a>';
+    		$_actions['clone_group'] = '<a href="'. wp_nonce_url(admin_url('admin.php?post_type='. rawurlencode($_post->post_type) .'&action=wcff_clone_group&post='. absint($_post->ID)), 'wcff_clone_group_' . absint($_post->ID)) .'" class="wcff_clone_group" title="'. __('Duplicate this fields group', 'wc-fields-factory') .'">' . __('Clone', 'wc-fields-factory') . '</a>';
     	}
     	return $_actions;
     }
@@ -530,37 +532,71 @@ class wcff_setup {
     }
 
     
- /**
- * Display WooCommerce customization service notice.
- */
-  public function wcff_customization_admin_notice() {
-    if ( ! current_user_can( 'manage_options' ) ) {
-        return;
+    /**
+     * Whether the current wp-admin screen belongs to WC Fields Factory.
+     *
+     * @return boolean
+     */
+    private function is_wcff_admin_screen() {
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!$screen) {
+            return false;
+        }
+
+        $wcff_post_types = array('wccpf', 'wccvf', 'wccaf', 'wcccf');
+        if (isset($screen->post_type) && in_array($screen->post_type, $wcff_post_types, true)) {
+            return true;
+        }
+
+        $wcff_pages = array('wcff_settings', 'variation_fields_config');
+        $current_page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+        if (in_array($current_page, $wcff_pages, true)) {
+            return true;
+        }
+
+        return false;
     }
 
-    ?>
-    <div class="notice notice-info is-dismissible" style="background-color: blanchedalmond;">
-        <p>
-            <strong><?php _e('Need help with WooCommerce customization?', 'wc-fields-factory'); ?></strong>
-        </p>
+    /**
+     * Display WooCommerce customization service notice.
+     * Shown only on WC Fields Factory admin screens.
+     */
+    public function wcff_customization_admin_notice() {
+        if (!current_user_can('manage_options') || !$this->is_wcff_admin_screen()) {
+            return;
+        }
 
-        <p>
-            <?php _e('We provide WooCommerce development, customization, troubleshooting and product-field solutions.', 'wc-fields-factory'); ?>
-            <?php _e('troubleshooting and product-field solutions.', 'wc-fields-factory'); ?>
-        </p>
+        ?>
+        <div class="notice notice-info is-dismissible" style="background-color: blanchedalmond;">
+            <h3 style="margin: 0.75em 0 0.4em;">
+                <?php esc_html_e('WC Fields Factory Team', 'wc-fields-factory'); ?>
+            </h3>
+            <p>
+                <strong><?php esc_html_e('Need help with WooCommerce customization?', 'wc-fields-factory'); ?></strong>
+            </p>
 
-        <p>
-            &nbsp;
-            <strong>WhatsApp:</strong>
-            <a href="https://wa.me/<?php echo WCFF_SUPPORT_PHONE; ?>"
-               target="_blank"
-               rel="noopener noreferrer">
-                <?php _e('Chat with us', 'wc-fields-factory'); ?>
-            </a>
-        </p>
-    </div>
-    <?php
-}
+            <p>
+                <?php _e('We provide WooCommerce development, customization, troubleshooting and product-field solutions.', 'wc-fields-factory'); ?>
+            </p>
+
+            <p>
+                <strong>WhatsApp:</strong>
+                <a href="https://wa.me/<?php echo esc_attr(WCFF_SUPPORT_PHONE); ?>"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <?php _e('Chat with us', 'wc-fields-factory'); ?>
+                </a>
+                &nbsp;|&nbsp;   
+                <strong>Gmail:</strong>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=<?php echo rawurlencode(WCFF_SUPPORT_EMAIL); ?>"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <?php _e('Send us an email', 'wc-fields-factory'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
+    }
     
 }
 

@@ -3572,7 +3572,7 @@ var wcffObj = null;
 			/* Pull the trigger */
 			$.ajax({
 				type: "POST",
-				data: { action: "wcff_ajax", wcff_param: JSON.stringify(this.request) },
+				data: { action: "wcff_ajax", wcff_nonce: wcff_var.nonce, wcff_param: JSON.stringify(this.request) },
 				dataType: "json",
 				url: wcff_var.ajaxurl,
 				beforeSend: function () {
@@ -3625,7 +3625,7 @@ var wcffObj = null;
 			var me = this;
 			$.ajax({
 				type: "POST",
-				data: { action: "wcff_ajax", wcff_param: JSON.stringify(_request) },
+				data: { action: "wcff_ajax", wcff_nonce: wcff_var.nonce, wcff_param: JSON.stringify(_request) },
 				dataType: "json",
 				url: wcff_var.ajaxurl,
 				success: function (data) {

@@ -18,13 +18,13 @@ class wcff_request {
 	
 	function prepare_request() {
 		if (isset($_REQUEST["wcff_param"])) {		    
-			$payload = json_decode(str_replace('\"','"',$_REQUEST["wcff_param"]), true);	
+			$payload = json_decode(str_replace('\"','"', wp_unslash($_REQUEST["wcff_param"])), true);	
 			if ($payload) {
 			    return array (
-			        "method" 	=> isset($payload["method"]) ? $payload["method"] : null,
-			        "context" 	=> isset($payload["context"]) ? $payload["context"] : null,
-			        "post" 		=> isset($payload["post"]) ? $payload["post"] : null,
-			        "post_type" => isset($payload["post_type"]) ? $payload["post_type"] : null,
+			        "method" 	=> isset($payload["method"]) ? sanitize_text_field($payload["method"]) : null,
+			        "context" 	=> isset($payload["context"]) ? sanitize_key($payload["context"]) : null,
+			        "post" 		=> isset($payload["post"]) ? absint($payload["post"]) : null,
+			        "post_type" => isset($payload["post_type"]) ? sanitize_key($payload["post_type"]) : null,
 			        "payload" 	=> isset($payload["payload"]) ? $payload["payload"] : null
 			    );
 			}

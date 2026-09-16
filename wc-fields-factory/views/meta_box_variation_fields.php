@@ -138,7 +138,7 @@ function render_variation_fields_config_view() {
 		var wcff_var = {
 				post: 0,
 				post_type : "wccvf",
-				nonce  : "<?php echo wp_create_nonce(get_current_screen()->id .'_nonce'); ?>",
+				nonce  : "<?php echo esc_js(wp_create_nonce('wcff_ajax')); ?>",
 				admin_url : "<?php echo esc_url(admin_url()); ?>",
 				ajaxurl : "<?php echo esc_url(admin_url('admin-ajax.php')); ?>",
 				version : "<?php echo esc_attr(wcff()->info["version"]); ?>",	

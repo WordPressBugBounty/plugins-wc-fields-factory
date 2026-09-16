@@ -40,12 +40,66 @@ class wcff_ajax {
 	public function listen() {
 		/* Parse the incoming request */
 		wcff()->request = apply_filters( 'wcff_request', array() );
+		if (!is_array(wcff()->request)) {
+			echo apply_filters('wcff_response', false, "Invalid request.", array());
+			die();
+		}
 		/* Handle the request */
 		$this->handleRequest();
 		/* Respond the request */
 		echo wcff()->response;
 		/* end the request - response cycle */
 		die();
+	}
+
+	/**
+	 * Front-end cart/variation contexts that guests may call.
+	 *
+	 * @return array
+	 */
+	private function get_public_contexts() {
+		return array(
+			"wcff_variation_fields",
+			"wcff_render_field_on_cart_edit",
+			"wcff_update_cart_field_data"
+		);
+	}
+
+	/**
+	 * Capability, nonce, and post-type checks for AJAX requests.
+	 *
+	 * @return true|string True on success, error message on failure.
+	 */
+	private function authorize_request() {
+		$context = isset(wcff()->request["context"]) ? wcff()->request["context"] : "";
+		$nonce = isset($_REQUEST["wcff_nonce"]) ? sanitize_text_field(wp_unslash($_REQUEST["wcff_nonce"])) : "";
+
+		if (in_array($context, $this->get_public_contexts(), true)) {
+			if (!wp_verify_nonce($nonce, "wcff_public_ajax")) {
+				return "Invalid request.";
+			}
+			return true;
+		}
+
+		if (!is_user_logged_in() || !current_user_can("manage_woocommerce")) {
+			return "Not authorized";
+		}
+
+		if (!wp_verify_nonce($nonce, "wcff_ajax")) {
+			return "Invalid request.";
+		}
+
+		$post_type = isset(wcff()->request["post_type"]) ? wcff()->request["post_type"] : "";
+		if (!wcff()->dao->is_wcff_post_type($post_type)) {
+			return "Not authorized";
+		}
+
+		$post_id = isset(wcff()->request["post"]) ? absint(wcff()->request["post"]) : 0;
+		if ($post_id > 0 && !wcff()->dao->is_wcff_group_post($post_id)) {
+			return "Not authorized";
+		}
+
+		return true;
 	}
 	
 	/**
@@ -82,23 +136,11 @@ class wcff_ajax {
 	         **/
 	        wcff()->response = apply_filters( 'wcff_response', false, $message, array() );
 	        return;
-	    }	
-	    
-	    /**
-	     *
-	     * Make sure the user has authorized 
-	     * 
-	     **/
-	    if (!is_user_logged_in() 
-	        && wcff()->request["context"] != "wcff_variation_fields" 
-	        && wcff()->request["context"] != "wcff_render_field_on_cart_edit" 
-	        && wcff()->request["context"] != "wcff_update_cart_field_data") {
-	    	/**
-	    	 * 
-	    	 * User not authorized to perform this action 
-	    	 * 
-	    	 **/
-	    	wcff()->response = apply_filters( 'wcff_response', false, "Not authorized", array());
+	    }
+
+	    $auth = $this->authorize_request();
+	    if ($auth !== true) {
+	    	wcff()->response = apply_filters( 'wcff_response', false, $auth, array());
 	    	return;
 	    }
 	    

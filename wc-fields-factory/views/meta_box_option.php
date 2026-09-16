@@ -548,7 +548,7 @@ function wcff_render_option_page() {
 
 					$.ajax({  
 						type       : "POST",  
-						data       : {action : "wcff_ajax", wcff_param : JSON.stringify(request)},  
+						data       : {action : "wcff_ajax", wcff_nonce : "<?php echo esc_js(wp_create_nonce('wcff_ajax')); ?>", wcff_param : JSON.stringify(request)},  
 						dataType   : "json",  
 						url        : "<?php echo esc_url(admin_url('admin-ajax.php')); ?>",  
 						beforeSend : function(){  

@@ -4,7 +4,7 @@
  * Plugin Name: WC Fields Factory
  * Plugin URI: https://wcfieldsfactory.in/
  * Description: Sell your products with personalised options. Add custom fields to your products, variations, checkout, order and your admin screens.
- * Version: 4.1.10
+ * Version: 4.1.11
  * Author: Saravana Kumar K
  * Author URI: https://wcfieldsfactory.in/
  * License: GPL
@@ -57,7 +57,7 @@ class wcff {
             'views'				=> plugin_dir_path(__FILE__) ."views",
             'inc'				=> plugin_dir_path(__FILE__) ."includes",
             'basename'          => plugin_basename(__FILE__),
-            'version'			=> '4.1.10'
+            'version'			=> '4.1.11'
         );
         
         /* Deactivation hook for cleanup */

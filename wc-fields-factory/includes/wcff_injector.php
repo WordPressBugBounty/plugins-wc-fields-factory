@@ -702,7 +702,8 @@ class wcff_injector {
 			decimal_seperator: "<?php echo get_option('woocommerce_price_decimal_sep'); ?>",
 			trim_zeros: "<?php echo (apply_filters('woocommerce_price_trim_zeros', false) ? "yes" : "no"); ?>",
 	        is_ajax_add_to_cart : "<?php echo get_option( 'woocommerce_enable_ajax_add_to_cart' ); ?>",
-	        is_page : "<?php echo ( is_product() ? "single" : "archive" ); ?>"
+	        is_page : "<?php echo ( is_product() ? "single" : "archive" ); ?>",
+	        ajax_nonce : "<?php echo esc_js(wp_create_nonce('wcff_public_ajax')); ?>"
 	    };
 	    </script>	
 	

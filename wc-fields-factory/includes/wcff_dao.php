@@ -95,7 +95,52 @@ class wcff_dao {
 	 *
 	 */
 	public function set_current_post_type($_type = "wccpf") {
+		if (!$this->is_wcff_post_type($_type)) {
+			$_type = "wccpf";
+		}
 		$this->wcff_key_prefix = $_type . "_";
+	}
+
+	/**
+	 * Custom post types owned by WC Fields Factory.
+	 *
+	 * @return array
+	 */
+	public function get_wcff_post_types() {
+		return array("wccpf", "wccaf", "wccvf", "wcccf");
+	}
+
+	/**
+	 * @param string $_type
+	 * @return boolean
+	 */
+	public function is_wcff_post_type($_type) {
+		return in_array($_type, $this->get_wcff_post_types(), true);
+	}
+
+	/**
+	 * @param integer $_pid
+	 * @return boolean
+	 */
+	public function is_wcff_group_post($_pid) {
+		$post = get_post(absint($_pid));
+		return ($post && $this->is_wcff_post_type($post->post_type));
+	}
+
+	/**
+	 * @param string $_key
+	 * @return boolean
+	 */
+	public function is_wcff_meta_key($_key) {
+		if (!is_string($_key) || $_key === "") {
+			return false;
+		}
+		foreach ($this->get_wcff_post_types() as $type) {
+			if (strpos($_key, $type . "_") === 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -687,8 +732,12 @@ class wcff_dao {
 			
 		$map_all = array();
 		$page = isset($_payload["page"]) ? absint($_payload["page"]) : 0;
-		$search = isset($_payload["search"]) ? $_payload["search"] : "";		
-		$post_type = isset($_payload["post_type"]) ? $_payload["post_type"] : "";		
+		$search = isset($_payload["search"]) ? sanitize_text_field($_payload["search"]) : "";		
+		$post_type = isset($_payload["post_type"]) ? sanitize_key($_payload["post_type"]) : "";
+		$allowed_search_types = array("product", "product_variation", "page");
+		if (!in_array($post_type, $allowed_search_types, true)) {
+			return $this->prepare_page_response($page, 0, array());
+		}
 		$qry = $wpdb->prepare("SELECT ID, post_title FROM $wpdb->posts WHERE post_type='%s' AND post_status='publish' AND post_title LIKE '%s'", $post_type, '%'. $wpdb->esc_like($search) .'%');	
 
 		if ($search == "") {
@@ -779,14 +828,18 @@ class wcff_dao {
 
 		if (isset($_payload["taxonomy"]) && !empty($_payload["taxonomy"])) {			
 			$page = isset($_payload["page"]) ? $_payload["page"] : 0;			
-			$search = isset($_payload["search"]) ? $_payload["search"] : "";								
+			$search = isset($_payload["search"]) ? sanitize_text_field($_payload["search"]) : "";								
+		}
+		$taxonomy = isset($_payload["taxonomy"]) ? sanitize_key($_payload["taxonomy"]) : "";
+		if (!in_array($taxonomy, array("product_cat", "product_tag"), true)) {
+			return $this->prepare_page_response(0, 0, array());
 		}
 
 		$total = 0;		
 		$page = absint($page);		
 		$offset = ($page * $this->records_per_page) - $this->records_per_page; 
 
-		$qry = $wpdb->prepare("SELECT $wpdb->terms.term_id, $wpdb->terms.name FROM $wpdb->terms INNER JOIN $wpdb->term_taxonomy ON $wpdb->terms.term_id = $wpdb->term_taxonomy.term_id WHERE $wpdb->terms.name LIKE '%s' AND $wpdb->term_taxonomy.taxonomy='%s'", '%'. $wpdb->esc_like($search) .'%', $_payload["taxonomy"]);			
+		$qry = $wpdb->prepare("SELECT $wpdb->terms.term_id, $wpdb->terms.name FROM $wpdb->terms INNER JOIN $wpdb->term_taxonomy ON $wpdb->terms.term_id = $wpdb->term_taxonomy.term_id WHERE $wpdb->terms.name LIKE '%s' AND $wpdb->term_taxonomy.taxonomy='%s'", '%'. $wpdb->esc_like($search) .'%', $taxonomy);			
 		if ($page > 0) {
 			/* Needs pagintation */
 			$tQry = "SELECT COUNT(1) FROM (${qry}) AS combined_table";
@@ -824,6 +877,10 @@ class wcff_dao {
 	    }
 
 		foreach ($_payload["rules"] as $gpid => $new_rules) {
+			$gpid = absint($gpid);
+			if (!$gpid || !$this->is_wcff_group_post($gpid)) {
+				continue;
+			}
 			$all_rules = $this->load_target_products_rules($gpid);
 			if (!is_array($all_rules)) {
 				$all_rules = array();
@@ -849,6 +906,10 @@ class wcff_dao {
 	        return false;
 	    }
 	    if (!isset($_payload["vid"]) || empty($_payload["vid"])) {
+	        return false;
+	    }
+	    $_payload["pid"] = absint($_payload["pid"]);
+	    if (!$_payload["pid"] || !$this->is_wcff_group_post($_payload["pid"])) {
 	        return false;
 	    } 
 
@@ -1065,6 +1126,9 @@ class wcff_dao {
 	 */
 	public function load_field($_pid = 0, $_mkey = "") {
 		$_pid = absint($_pid);
+		if (!$this->is_wcff_group_post($_pid)) {
+			return array();
+		}
 		$post = get_post($_pid);
 		$field = get_post_meta($_pid, $_mkey, true);
 		if ($field === "") {
@@ -1084,6 +1148,9 @@ class wcff_dao {
 	 */
 	public function create_field($_pid, $_type, $_order) {
 		$_pid = absint($_pid);
+		if (!$this->is_wcff_group_post($_pid)) {
+			return false;
+		}
 
 		$id = $this->generate_unique_id();
 		$id = apply_filters("wcff_new_field_id", $id, $_pid, $_type);
@@ -1105,7 +1172,13 @@ class wcff_dao {
 		$msg = "";
 		$res = true;
 		$_pid = absint($_pid);
+		if (!$this->is_wcff_group_post($_pid)) {
+			return array("res" => false, "msg" => __( "Not authorized", "wc-fields-factory" ));
+		}
 		if (isset($_payload["key"])) {
+			if (!$this->is_wcff_meta_key($_payload["key"])) {
+				return array("res" => false, "msg" => __( "Not authorized", "wc-fields-factory" ));
+			}
 		    delete_post_meta($_pid, $_payload["key"]);
 			if (add_post_meta($_pid,  $_payload["key"], wp_slash(json_encode($_payload))) == false) {
 				$res = false;
@@ -1113,6 +1186,9 @@ class wcff_dao {
 			}
 		}	
 		if (isset($_payload["to_be_removed"])) {
+			if (!$this->is_wcff_meta_key($_payload["to_be_removed"])) {
+				return array("res" => false, "msg" => __( "Not authorized", "wc-fields-factory" ));
+			}
 			delete_post_meta($_pid, $_payload["to_be_removed"]);
 		}
 		return array("res" => $res, "msg" => $msg);
@@ -1121,6 +1197,10 @@ class wcff_dao {
 	public function toggle_field($_pid, $_key, $_status) {
 		$msg = "";
 		$res = true;
+		$_pid = absint($_pid);
+		if (!$this->is_wcff_group_post($_pid) || !$this->is_wcff_meta_key($_key)) {
+			return array("res" => false, "msg" => __( "Not authorized", "wc-fields-factory" ));
+		}
 		$meta_val = get_post_meta($_pid, $_key, true);
 		if ($meta_val && !empty($meta_val)) {
 			$field = json_decode(wp_unslash($meta_val), true);
@@ -1143,9 +1223,22 @@ class wcff_dao {
 	}
 	
 	public function clone_group($_pid = 0, $_post_type = "") {
-		global $wpdb;		
-		$_pid = ($_pid == 0) ? (isset($_REQUEST["post"]) ? $_REQUEST["post"] : 0) : 0;
-		$_post_type = ($_post_type == "") ? (isset($_REQUEST["post_type"]) ? $_REQUEST["post_type"] : "") : "";	
+		global $wpdb;
+
+		if (!current_user_can("manage_woocommerce")) {
+			wp_die(__("You are not allowed to clone this fields group.", "wc-fields-factory"), 403);
+		}
+
+		$_pid = ($_pid == 0) ? (isset($_REQUEST["post"]) ? absint($_REQUEST["post"]) : 0) : absint($_pid);
+		$_post_type = ($_post_type == "") ? (isset($_REQUEST["post_type"]) ? sanitize_key(wp_unslash($_REQUEST["post_type"])) : "") : sanitize_key($_post_type);
+
+		check_admin_referer("wcff_clone_group_" . $_pid);
+
+		$cloneable_types = array("wccpf", "wccaf", "wccvf");
+		$source = get_post($_pid);
+		if ($_pid <= 0 || !$source || !in_array($_post_type, $cloneable_types, true) || $source->post_type !== $_post_type) {
+			wp_die(__("Invalid fields group.", "wc-fields-factory"), 403);
+		}
 				
 		if (isset($_pid) && $_pid > 0) {
 		    
@@ -1217,6 +1310,9 @@ class wcff_dao {
 	
 	public function clone_field($_pid, $_fkey) {
 		$_pid = absint($_pid);
+		if (!$this->is_wcff_group_post($_pid) || !$this->is_wcff_meta_key($_fkey)) {
+			return false;
+		}
 		$id = $this->generate_unique_id();
 		$id = apply_filters("wcff_new_field_id", $id, $_pid, null);
 		$cloned = $this->load_field($_pid, $_fkey);		
@@ -1242,6 +1338,9 @@ class wcff_dao {
 	public function remove_field($_pid, $_mkey) {
 	    if ($_pid) {
 	        $_pid = absint($_pid);
+	        if (!$this->is_wcff_group_post($_pid) || !$this->is_wcff_meta_key($_mkey)) {
+	            return false;
+	        }
 	        $post = get_post($_pid);
 	        do_action($post->post_type .'_before_remove_field', $_mkey, $_pid);
 	        /* Update the layout meta */
