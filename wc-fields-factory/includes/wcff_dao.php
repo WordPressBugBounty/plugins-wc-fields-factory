@@ -1529,14 +1529,17 @@ class wcff_dao {
 	                $location_passed = true;
 	            }
 	            
+	            $admin_location_endpoint = "";
 	            if ($_type == "wccaf") {
 	                $admin_target_location = get_post_meta($g_post->ID, $_type .'_location_rules', true);	                
 	                $admin_target_location = json_decode($admin_target_location, true);
+	                $admin_target_location = $this->normalize_admin_location_rule($admin_target_location);
+	                $admin_location_endpoint = isset($admin_target_location["endpoint"]) ? $admin_target_location["endpoint"] : "";
 	            }	            
 	            
 	            /* Check for 'variation_tab' location, needs to exclude admin fields which has location of variable tab */
 	            if ($_type == "wccaf" && ($_template == "single-product" || $_template == "archive-product")) {                
-	                if ($admin_target_location["endpoint"] == "woocommerce_product_after_variable_attributes") {	                    
+	                if ($admin_location_endpoint == "woocommerce_product_after_variable_attributes") {	                    
 	                    $location_passed = false;
 	                    $this->has_variable_tab_fields = true;
 	                }                
@@ -1545,7 +1548,7 @@ class wcff_dao {
 	            /* Needs to includes admin fields which has variable tab as target location */
 	            if ($_type == "wccaf" && $_is_variation_template) {
 	                $location_passed = false;
-	                if ($admin_target_location["endpoint"] == "woocommerce_product_after_variable_attributes") {
+	                if ($admin_location_endpoint == "woocommerce_product_after_variable_attributes") {
 	                    $location_passed = true;	                  
 	                } 
 	            }
@@ -1770,10 +1773,15 @@ class wcff_dao {
 	 *
 	 */
 	public function check_for_location($_gpid, $_rule, $_location, $_custom_target_tab_title) {
+
+	    $_rule = $this->normalize_admin_location_rule($_rule);
+	    if (!isset($_rule["context"])) {
+	        return false;
+	    }
 			
 	    if ($_rule["context"] == "location_product_data") {
 			if ($_location != "wccaf_custom_product_data_tab") {
-				if ($_rule["endpoint"] == $_location) {
+				if (isset($_rule["endpoint"]) && $_rule["endpoint"] == $_location) {
 					return true;
 				}
 			} else {
@@ -1794,6 +1802,30 @@ class wcff_dao {
 		return false;
 	}
 	
+	/**
+	 * Flatten admin location rules stored as a map or nested array.
+	 *
+	 * @param mixed $_rules
+	 * @return array
+	 */
+	private function normalize_admin_location_rule($_rules) {
+	    if (!is_array($_rules) || empty($_rules)) {
+	        return array();
+	    }
+	    if (isset($_rules["endpoint"]) || isset($_rules["context"])) {
+	        return $_rules;
+	    }
+	    if (isset($_rules[0]) && is_array($_rules[0])) {
+	        if (isset($_rules[0]["endpoint"]) || isset($_rules[0]["context"])) {
+	            return $_rules[0];
+	        }
+	        if (isset($_rules[0][0]) && is_array($_rules[0][0])) {
+	            return $_rules[0][0];
+	        }
+	    }
+	    return array();
+	}
+
 	private function check_for_roles($_targeted_roles) {	    
 	    
 	    global $wp_roles;

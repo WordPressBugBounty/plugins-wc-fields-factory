@@ -3,7 +3,7 @@ Contributors: mycholan, sarkware, Palaniyappan
 Tags: custom product fields, custom admin fields, overriding product price, custom woocommerce fee, customize woocommerce product page, add custom fields to woocommerce product page
 Requires at least: 3.5
 Tested up to: 7.1
-Stable tag: 4.1.11
+Stable tag: 4.1.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,12 +109,13 @@ Also added support for CoCart Headless ecommerce plugin.
 
 == Changelog ==
 
+= 4.1.12 =
+* Fixed PHP warning for undefined admin location endpoint on product pages.
+
 = 4.1.11 =
 * Security fix: AJAX field management now requires shop manager permission and a nonce.
 * Security fix: Clone Fields Group now requires shop manager permission and a nonce.
 * Field meta updates are now limited to WC Fields Factory posts only.
-* Customization support notice is shown only on Fields Factory admin screens.
-* WhatsApp and Gmail contact added to the support notice.
 
 = 4.1.10 =
 * Added WooCommerce customization support notice.
@@ -561,6 +562,9 @@ Also added support for CoCart Headless ecommerce plugin.
 
 
 == Upgrade Notice ==
+
+= 4.1.12 =
+Fixes a PHP warning on product pages when admin field location rules are empty.
 
 = 4.1.11 =
 Important security update. Please update immediately. Fixes missing authorization on AJAX and Clone Fields Group.
