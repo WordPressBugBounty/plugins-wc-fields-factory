@@ -1933,7 +1933,7 @@ class wcff_builder {
         /* Is init field show or hide */
         $onload_field = (isset($_meta["initial_show"]) && $_meta["initial_show"] == "no" ) ? "display: none;" : "";
         if ($_meta["message"] != "") {
-            $html = '<div style="'.$onload_field.'" data-labelfield="'. esc_attr($_meta["key"]) .'" data-fkey="'. esc_attr($_meta["key"]) .'" class="wcff-label wccpf_fields_table' . esc_attr($_class) . ' wcff-label-' . esc_attr($_meta["message_type"]) . '" '. $_cloneable .'><span class="wccpf-field label" data-fkey="'. esc_attr($_meta["key"]) .'">' . html_entity_decode($_meta["message"]) . '</span><input type="hidden" name="' . esc_attr($_meta["name"] . $_index) . '"></div>';
+            $html = '<div style="'.$onload_field.'" data-labelfield="'. esc_attr($_meta["key"]) .'" data-fkey="'. esc_attr($_meta["key"]) .'" class="wcff-label wccpf_fields_table' . esc_attr($_class) . ' wcff-label-' . esc_attr($_meta["message_type"]) . '" '. $_cloneable .'><span class="wccpf-field label" data-fkey="'. esc_attr($_meta["key"]) .'">' . wp_kses_post(html_entity_decode($_meta["message"], ENT_QUOTES, 'UTF-8')) . '</span><input type="hidden" name="' . esc_attr($_meta["name"] . $_index) . '"></div>';
             if($_ptype == "wcccf"){
                 $html = $this->built_field_wrapper($html, $_meta, $_ptype, $_index);
             }
@@ -2146,7 +2146,7 @@ class wcff_builder {
                         $html .= '<span class="description">' . wp_kses_post($_meta['description']) . '</span>';
                     }
                 }
-                $html .= '<span class="wccaf-validation-message">' . (isset($_meta["message"]) ? $_meta["message"] : "") . '</span>';
+                $html .= '<span class="wccaf-validation-message">' . (isset($_meta["message"]) ? esc_html($_meta["message"]) : "") . '</span>';
                 $html .= '</p>';
             } else if ($_meta["location"] == "product_cat_add_form_fields") {
                 $html .= '<div class="form-field ' . $_meta["location"] . '">';

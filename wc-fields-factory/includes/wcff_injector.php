@@ -343,7 +343,7 @@ class wcff_injector {
                         $index= "_1";
                     }
                     if (isset($_REQUEST[$field["key"] . $index])) {
-                        $field["default_value"] = $_REQUEST[$field["key"] . $index];
+                        $field["default_value"] = wcff_strip_submitted_markup($_REQUEST[$field["key"] . $index]);
                     }
                     
                     /* Reset the validation failed flaq */
@@ -493,7 +493,7 @@ class wcff_injector {
     	                        $index= "_1";
     	                    }
     	                    if (isset($_REQUEST[$field["key"] . $index])) {
-    	                        $field["default_value"] = $_REQUEST[$field["key"] . $index];
+    	                        $field["default_value"] = wcff_strip_submitted_markup($_REQUEST[$field["key"] . $index]);
     	                    }
     	                    
     	                    /* Reset the validation failed flaq */

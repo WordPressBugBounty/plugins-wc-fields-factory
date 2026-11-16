@@ -173,38 +173,39 @@ class wcff_cart_renderer {
         	/* Localize field */
         	$_field = wcff()->locale->localize_field($_field);
         }     	
-        $_val = (($_val && isset($_val["user_val"])) ? $_val["user_val"] : $_val);
-        if ($_field["type"] != "file" && $_field["type"] != "checkbox") {
-        	$value = esc_html(stripslashes($_val));        	
-        } else if($_field["type"] == "checkbox") {
-    	    /* Since checkbox value is array, we have to deal it seperately */
-        	$value = (is_array($_val) ? implode(", ", $_val) : esc_html(stripslashes($_val)));    	   
+        $_val = (($_val && is_array($_val) && isset($_val["user_val"])) ? $_val["user_val"] : $_val);
+        if ($_field["type"] != "file") {
+        	$value = wcff_esc_user_text($_val);
         } else {
             $is_multi_file = isset($_field["multi_file"]) ? $_field["multi_file"] : "no";
-            if ($is_multi_file == "yes") {
+            $farray = json_decode(is_string($_val) ? $_val : '', true);
+            if ($is_multi_file == "yes" && is_array($farray)) {
                 $fnames = array();
                 $images = "";
-                $farray = json_decode($_val, true);
                 foreach ($farray as $fobj) {
+                    if (!is_array($fobj) || empty($fobj['file']) || empty($fobj["url"])) {
+                        continue;
+                    }
                     $path_parts = pathinfo($fobj['file']);
-                    $fnames[] = $path_parts["basename"];
+                    $fnames[] = esc_html($path_parts["basename"]);
                     if (@getimagesize($fobj["url"])) {
                         $images .= "<img src='". esc_url($fobj["url"]) ."' style='width: ". esc_attr($_field["img_is_prev_width"]) ."px' >";
                     }
                 }
-                if ($_field["img_is_prev"] == "yes" && @getimagesize($fobj["url"])) {
-                	$value = $images;                    
+                if ($_field["img_is_prev"] == "yes" && $images !== "") {
+                	$value = $images;
                 } else {
-                	$value = implode(", ", $fnames);                    
+                	$value = implode(", ", $fnames);
+                }
+            } else if (is_array($farray) && !empty($farray['file']) && !empty($farray["url"])) {
+                $path_parts = pathinfo($farray['file']);
+                if ($_field["img_is_prev"] == "yes" && @getimagesize($farray["url"])) {
+                	$value = "<img src='". esc_url($farray["url"]) ."' style='width: ". esc_attr($_field["img_is_prev_width"]) ."px' />";
+                } else{
+                	$value = esc_html($path_parts["basename"]);
                 }
             } else {
-                $fobj = json_decode($_val, true);
-                $path_parts = pathinfo($fobj['file']);
-                if ($_field["img_is_prev"] == "yes" && @getimagesize($fobj["url"])) {
-                	$value = "<img src='". esc_url($fobj["url"]) ."' style='width: ". esc_attr($_field["img_is_prev_width"]) ."px' />";                    
-                } else{
-                	$value = $path_parts["basename"];                    
-                }
+                $value = '';
             }
         }
         $cif_data = array(

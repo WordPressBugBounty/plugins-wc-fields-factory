@@ -3,7 +3,7 @@ Contributors: mycholan, sarkware, Palaniyappan
 Tags: custom product fields, custom admin fields, overriding product price, custom woocommerce fee, customize woocommerce product page, add custom fields to woocommerce product page
 Requires at least: 3.5
 Tested up to: 7.1
-Stable tag: 4.1.12
+Stable tag: 4.1.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,6 +108,10 @@ Also added support for CoCart Headless ecommerce plugin.
 5. Wcff Fee Rules View
 
 == Changelog ==
+
+= 4.1.13 =
+* Security fix: customer field values are sanitized before they are stored and escaped everywhere they are displayed, including cart, checkout, orders, and emails.
+* Security fix: field configuration can no longer be saved without permission to edit that fields group.
 
 = 4.1.12 =
 * Fixed PHP warning for undefined admin location endpoint on product pages.
@@ -562,6 +566,9 @@ Also added support for CoCart Headless ecommerce plugin.
 
 
 == Upgrade Notice ==
+
+= 4.1.13 =
+Important security update. Please update immediately. Fixes stored cross-site scripting in custom field values.
 
 = 4.1.12 =
 Fixes a PHP warning on product pages when admin field location rules are empty.

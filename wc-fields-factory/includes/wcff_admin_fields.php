@@ -348,9 +348,10 @@ class wcff_admin_fields {
 					if (is_array($field) && isset($field["label"]) && isset($field["key"])) {
 						$send = isset($field["email_meta"]) ? $field["email_meta"] : "yes";
 						if ($send == "yes") {
+							$meta_value = get_post_meta($_order->get_id(), $field["key"], true);
 							$_fields[] = array(
 								"label" => $field["label"],
-								"value" => get_post_meta($_order->get_id(), $field["key"], true)
+								"value" => wp_kses_post(is_scalar($meta_value) ? (string) $meta_value : "")
 							);
 						}   
 					}

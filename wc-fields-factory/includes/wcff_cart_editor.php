@@ -237,7 +237,7 @@ class wcff_cart_editor {
 			/* Localize field */
 			$_field = wcff ()->locale->localize_field ( $_field );
 		}
-		$_val = (($_val && isset ( $_val ["user_val"] )) ? $_val ["user_val"] : $_val);
+		$_val = (($_val && is_array($_val) && isset ( $_val ["user_val"] )) ? $_val ["user_val"] : $_val);
 		$is_editable = isset ( $_field ["cart_editable"] ) ? $_field ["cart_editable"] : "no";
 		$editable_class = ($is_editable == "yes") ? "wcff_cart_editor_field" : "";
 		$tooltip = ($is_editable == "yes") ? 'title="Double click to edit"' : '';
@@ -247,45 +247,39 @@ class wcff_cart_editor {
 		$meta_html = '<ul class="wccpf-cart-editor-ul wccpf-is-editable-'. esc_attr($is_editable) .'">';
 		$meta_html .= '<li>' . esc_html($_field ["label"]) . ' : </li>';
 		
-		if ($_field ["type"] != "file" && $_field ["type"] != "checkbox" && $_field ["type"] != "colorpicker") {
-		    $meta_html .= '<li class="' . esc_attr($editable_class) . '" ' . $tooltip . ' data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . wp_kses_post ( wpautop ( stripslashes ( $_val ) ) ) . '</li>';
-		} else if ($_field ["type"] == "checkbox") {
-		    $meta_html .= '<li class="' . esc_attr($editable_class) . '" ' . $tooltip . ' data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . wp_kses_post ( wpautop ( (is_array ( $_val ) ? implode ( ",", $_val ) : stripslashes ( $_val )) ) ) . '</li>';
+		if ($_field ["type"] != "file" && $_field ["type"] != "colorpicker") {
+		    $meta_html .= '<li class="' . esc_attr($editable_class) . '" ' . $tooltip . ' data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . wpautop(wcff_esc_user_text($_val)) . '</li>';
 		} else if ($_field ["type"] == "colorpicker") {
-			$color_val = "";
+			$safe_color = wcff_sanitize_css_color(is_scalar($_val) ? $_val : '');
 			$show_as_color = 'data-color-box="no"';
 			if (isset ( $_field ["hex_color_show_in"] ) && $_field ["hex_color_show_in"] == "yes") {
-				if (strpos ( $_val, "wcff-color-picker-color-show" ) == false) {
-				    $color_val = '<span class="wcff-color-picker-color-show" code="' . esc_attr($_val) . '" style="background-color: ' . esc_attr($_val) . '"></span>';
-				} else {
-					$color_val = $_val;
-				}
+			    $color_val = '<span class="wcff-color-picker-color-show" code="' . esc_attr($safe_color) . '" style="background-color: ' . esc_attr($safe_color) . '"></span>';
 				$show_as_color = 'data-color-box="yes"';
 			} else {
-				$color_val = wp_kses_post ( wpautop ( $_val ) );
+				$color_val = esc_html($safe_color);
 			}
 			$meta_html .= '<li class="' . esc_attr($editable_class) . '" ' . $tooltip . ' data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) .'" '. $show_as_color .'>' . $color_val . '</li>';
 		} else {
 			$is_multi_file = isset ( $_field ["multi_file"] ) ? $_field ["multi_file"] : "no";
-			if ($is_multi_file == "yes") {
+			$farray = json_decode ( is_string($_val) ? $_val : '', true );
+			if ($is_multi_file == "yes" && is_array($farray)) {
 				$fkeys = array ();
-				$farray = json_decode ( $_val, true );
 				foreach ( $farray as $fobj ) {
+					if (!is_array($fobj) || empty($fobj['file'])) {
+						continue;
+					}
 					$path_parts = pathinfo ( $fobj ['file'] );
-					if (isset($path_parts["basekey"])) {
-						$fkeys[] = $path_parts["basekey"];
-					} elseif (isset($path_parts["basename"])) {
-						$fkeys[] = $path_parts["basename"];
-					}					
+					if (isset($path_parts["basename"])) {
+						$fkeys[] = esc_html($path_parts["basename"]);
+					}
 				}
-				$meta_html .= '<li class="wcff_field_cart_updater_clone" data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . wp_kses_post ( implode ( ", ", $fkeys ) ) . '</li>';
-			} else {
-				$fobj = json_decode ( $_val, true );
-				$path_parts = pathinfo ( $fobj ['file'] );
-				if ($_field ["img_is_prev"] == "yes" && @getimagesize ( $fobj ["url"] )) {
-				    $meta_html .= '<li data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '"><img src="' . esc_url($fobj ["url"]) . '" style="width:' . esc_attr($_field ["img_is_prev_width"]) . 'px;"></li>';
+				$meta_html .= '<li class="wcff_field_cart_updater_clone" data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . implode ( ", ", $fkeys ) . '</li>';
+			} else if (is_array($farray) && !empty($farray['file']) && !empty($farray["url"])) {
+				$path_parts = pathinfo ( $farray ['file'] );
+				if ($_field ["img_is_prev"] == "yes" && @getimagesize ( $farray ["url"] )) {
+				    $meta_html .= '<li data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '"><img src="' . esc_url($farray ["url"]) . '" style="width:' . esc_attr($_field ["img_is_prev_width"]) . 'px;"></li>';
 				} else {
-				    $meta_html .= '<li class="wcff_field_cart_updater_clone" data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . wp_kses_post ( stripslashes ( $path_parts ["basename"] ) ) . '</li>';
+				    $meta_html .= '<li class="wcff_field_cart_updater_clone" data-field="' . esc_attr($_field ["key"]) . '" data-fieldkey="' . esc_attr($_field ["key"] . $_index) . '" data-productid="' . esc_attr ( $this->cart_item ["product_id"] ) . '" data-itemkey="' . esc_attr ( $this->cart_item_key ) . '">' . esc_html ( $path_parts ["basename"] ) . '</li>';
 				}
 			}
 		}
@@ -479,13 +473,11 @@ class wcff_cart_editor {
         
         $return_value = "";
         $saveval = $_payload["data"]["value"];
-        $validate = $this->validate_wccpf($_payload["product_id"], $_payload["data"]["field"], $_payload["data"]["value"], $_payload["cart_item_key"]);
-        
-        if (isset($_payload["data"]["color_showin"])) {
-            if ($_payload["data"]["color_showin"]) {
-                $saveval = urldecode($_payload["data"]["value"]);
-            }
+        if (isset($_payload["data"]["color_showin"]) && $_payload["data"]["color_showin"] && is_string($saveval)) {
+            $saveval = rawurldecode($saveval);
         }
+        $saveval = wcff_strip_submitted_markup($saveval);
+        $validate = $this->validate_wccpf($_payload["product_id"], $_payload["data"]["field"], $saveval, $_payload["cart_item_key"]);
         if (!$validate["status"]){
             return array("status" => false, "message" => $validate["msg"]);
         } else {
@@ -697,7 +689,7 @@ class wcff_cart_editor {
 				<?php endif; ?>											
 				<?php			
 					if (isset($_field["date_format"]) && $_field["date_format"] != "") {
-						echo "dateFormat:'". esc_html( $_field["date_format"] ) ."'";
+						echo "dateFormat:'". esc_js( $_field["date_format"] ) ."'";
 					} else {
 						echo "dateFormat:'dd-mm-yy'";
 					}	
@@ -706,7 +698,7 @@ class wcff_cart_editor {
 						if ($_field["display_in_dropdown"] == "yes") {
 							echo ",changeMonth: true";
 							echo ",changeYear: true";
-							echo ",yearRange:'". esc_html($year_range) ."'";
+							echo ",yearRange:'". esc_js($year_range) ."'";
 						}
 					}
 					if (isset($_field["disable_date"]) && !empty($_field["disable_date"])) {
@@ -759,7 +751,7 @@ class wcff_cart_editor {
 							 }						
 					<?php } ?>	
 					<?php if (isset($_field["specific_date_all_months"]) && !empty($_field["specific_date_all_months"])){ ?>
-					 		var disableDateAll = <?php echo '"'. esc_html($_field["specific_date_all_months"]) .'"'; ?>;
+					 		var disableDateAll = <?php echo wp_json_encode((string) $_field["specific_date_all_months"]); ?>;
 					 			disableDateAll = disableDateAll.split(",");
 					 		for (var i = 0; i < disableDateAll.length; i++) {
 								if (parseInt(disableDateAll[i].trim()) == date.getDate()){
@@ -768,7 +760,7 @@ class wcff_cart_editor {
 					 		}
 					<?php } ?>						
 					<?php if (isset($_field["specific_dates"]) && !empty($_field["specific_dates"])) { ?>
-								var disableDates = <?php echo "'". esc_html($_field["specific_dates"]) ."'"; ?>;
+								var disableDates = <?php echo wp_json_encode((string) $_field["specific_dates"]); ?>;
 									disableDates = disableDates.split(",");
 									/* Sanitize the dates */
 									for (var i = 0; i < disableDates.length; i++) {	
@@ -815,6 +807,10 @@ class wcff_cart_editor {
 		$colorformat = isset ( $_field ["color_format"] ) ? $_field ["color_format"] : "hex";
 		$defaultcolor = isset ( $_field ["default_value"] ) ? $_field ["default_value"] : "#000";
 		$defaultcolor = $color_code != null ? $color_code : $defaultcolor;
+		$defaultcolor = wcff_sanitize_css_color($defaultcolor);
+		if ($defaultcolor === '') {
+			$defaultcolor = '#000';
+		}
 		
 		if (isset ( $_field ["palettes"] ) && $_field ["palettes"] != "") {
 			$palettes = explode ( ";", $_field ["palettes"] );
@@ -827,7 +823,7 @@ class wcff_cart_editor {
 				$colors = explode ( ",", $palette );
 				foreach ( $colors as $color ) {
 					$comma = ($indexX == 0) ? "" : ",";
-					$palette_attr .= $comma . "'" . $color . "'";
+					$palette_attr .= $comma . "'" . esc_js(wcff_sanitize_css_color($color)) . "'";
 					$indexX ++;
 				}
 				$palette_attr .= "]";
@@ -842,10 +838,10 @@ class wcff_cart_editor {
         	(function($) {
         		$(document).ready(function() {
 	        		$(".wccpf-color-<?php echo esc_attr( $_field["key"] ); ?>").spectrum({
-	        		color: "<?php echo esc_html($defaultcolor); ?>" 
-		        	,preferredFormat: "<?php echo esc_html($colorformat); ?>"
+	        		color: "<?php echo esc_js($defaultcolor); ?>" 
+		        	,preferredFormat: "<?php echo esc_js($colorformat); ?>"
 					<?php if( is_array( $palettes ) && count( $palettes ) > 0 ) : ?>
-					<?php echo esc_html($palette_attr); ?>
+					<?php echo $palette_attr; ?>
 					<?php if( $_field["show_palette_only"] == "yes" ) : ?>
 					,showPaletteOnly: true
 					<?php else: ?>

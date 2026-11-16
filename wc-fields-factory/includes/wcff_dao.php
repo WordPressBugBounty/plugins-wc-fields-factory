@@ -226,6 +226,10 @@ class wcff_dao {
 		}
 		
 		$_pid = absint($_pid);
+
+		if (!current_user_can('manage_woocommerce') && !current_user_can('edit_post', $_pid)) {
+			return false;
+		}
 		
 		/* Prepare the post type prefix for meta key */
 		$this->wcff_key_prefix = $_post->post_type . "_";

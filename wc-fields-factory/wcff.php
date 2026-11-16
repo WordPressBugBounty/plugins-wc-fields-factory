@@ -4,7 +4,7 @@
  * Plugin Name: WC Fields Factory
  * Plugin URI: https://wcfieldsfactory.in/
  * Description: Sell your products with personalised options. Add custom fields to your products, variations, checkout, order and your admin screens.
- * Version: 4.1.12
+ * Version: 4.1.13
  * Author: Saravana Kumar K
  * Author URI: https://wcfieldsfactory.in/
  * License: GPL
@@ -57,7 +57,7 @@ class wcff {
             'views'				=> plugin_dir_path(__FILE__) ."views",
             'inc'				=> plugin_dir_path(__FILE__) ."includes",
             'basename'          => plugin_basename(__FILE__),
-            'version'			=> '4.1.12'
+            'version'			=> '4.1.13'
         );
         
         /* Deactivation hook for cleanup */
@@ -187,6 +187,96 @@ class wcff {
         
     }
     
+}
+
+/**
+ * Remove markup from a submitted field value without changing slash handling.
+ * Arrays are cleaned element by element so checkbox values stay intact.
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function wcff_strip_submitted_markup($value) {
+    if (is_array($value)) {
+        $clean = array();
+        foreach ($value as $key => $item) {
+            if (is_scalar($item)) {
+                $clean[$key] = wp_strip_all_tags((string) $item);
+            }
+        }
+        return $clean;
+    }
+    if (!is_scalar($value)) {
+        return '';
+    }
+    return wp_strip_all_tags((string) $value);
+}
+
+/**
+ * Plain text for storage after WordPress request slashes are removed.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function wcff_plain_submitted_text($value) {
+    if (is_array($value)) {
+        $parts = array();
+        foreach ($value as $item) {
+            if (is_scalar($item)) {
+                $text = wcff_plain_submitted_text($item);
+                if ($text !== '') {
+                    $parts[] = $text;
+                }
+            }
+        }
+        return implode(', ', $parts);
+    }
+    if (!is_scalar($value)) {
+        return '';
+    }
+    return trim(wp_strip_all_tags(stripslashes((string) $value)));
+}
+
+/**
+ * Escape a stored customer value for HTML text.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function wcff_esc_user_text($value) {
+    if (is_array($value)) {
+        $parts = array();
+        foreach ($value as $item) {
+            if (is_scalar($item)) {
+                $parts[] = esc_html(stripslashes((string) $item));
+            }
+        }
+        return implode(', ', $parts);
+    }
+    if (!is_scalar($value)) {
+        return '';
+    }
+    return esc_html(stripslashes((string) $value));
+}
+
+/**
+ * Allow only color values that are safe inside a CSS property or JS string.
+ *
+ * @param mixed $color
+ * @return string
+ */
+function wcff_sanitize_css_color($color) {
+    $color = trim(wp_strip_all_tags(stripslashes((string) $color)));
+    if (preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', $color)) {
+        return $color;
+    }
+    if (preg_match('/^(?:rgb|rgba|hsl|hsla|hsv)\(\s*[0-9.%,\s]+\)$/', $color)) {
+        return $color;
+    }
+    if (preg_match('/^[a-zA-Z]{3,20}$/', $color)) {
+        return $color;
+    }
+    return '';
 }
 
 /**

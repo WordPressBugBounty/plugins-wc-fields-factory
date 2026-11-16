@@ -48,11 +48,13 @@ class wcff_order_fields {
         if (!is_admin()) {
             foreach ($_fields as $id => $obj) {
                 if ($this->is_visible($obj->key)) {
-                    $res[$id] = $obj;
+                    $res[$id] = $this->escape_customer_value($obj);
                 }
             }
         } else {
-            $res = $_fields;
+            foreach ($_fields as $id => $obj) {
+                $res[$id] = $this->escape_customer_value($obj);
+            }
         }
 
         return $res;
@@ -90,6 +92,20 @@ class wcff_order_fields {
             }
         }
 
+    }
+
+    /**
+     * Customer-entered values are plain text. Escape them before WooCommerce
+     * prints order item meta in admin, emails, and the customer account.
+     */
+    private function escape_customer_value($obj) {
+        if (!is_object($obj) || !isset($obj->key) || !isset($this->fields[$obj->key])) {
+            return $obj;
+        }
+        $raw = (isset($obj->value) && is_scalar($obj->value)) ? (string) $obj->value : '';
+        $obj->display_key = esc_html((string) $obj->key);
+        $obj->display_value = wpautop(make_clickable(esc_html($raw)));
+        return $obj;
     }
 
     private function is_visible($_key) {

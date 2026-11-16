@@ -178,6 +178,7 @@ class wcff_persister {
                 /* Other fields can be directly stored */
                 $res = $_val;
             }
+            $res = wcff_strip_submitted_markup($res);
             /* Make sure the select field placeholder not there */
             if ($_field["type"] == "select" && $res == "wccpf_none") {
                 return;

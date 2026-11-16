@@ -1082,19 +1082,17 @@ var wcffCartEditor = function() {
 		  }
 	  } else if( _action == "update_cart_field_data" ){
 		  if( response.payload.status ) {
-			  if (response.payload.field_type !== "colorpicker") {							
-				  _target.closest( "div.wccpf-cart-edit-wrapper" ).parent().find("li.wcff_cart_editor_field").show().html( '<p>'+ decodeURI( response.payload.value ) +'</p>' );
+			  var $edited = _target.closest( "div.wccpf-cart-edit-wrapper" ).parent().find("li.wcff_cart_editor_field");
+			  var editedValue = decodeURI( response.payload.value || "" );
+			  if (response.payload.field_type === "colorpicker" && $edited.attr("data-color-box") === "yes" && /^(?:#[0-9a-f]{3,8}|(?:rgb|rgba|hsl|hsla|hsv)\(\s*[0-9.%,\s]+\)|[a-z]{3,20})$/i.test(editedValue)) {
+				  $edited.empty().append($("<p>").append($("<span>", {"class": "wcff-color-picker-color-show"}).css("background-color", editedValue))).show();
 			  } else {
-				  if (_target.closest( "div.wccpf-cart-edit-wrapper" ).parent().find("li.wcff_cart_editor_field").attr("data-color-box") === "yes") {
-					  _target.closest( "div.wccpf-cart-edit-wrapper" ).parent().find("li.wcff_cart_editor_field").show().html( '<p><span class="wcff-color-picker-color-show" style="background: '+ decodeURI( response.payload.value ) + ';"></span></p>' );
-				  } else {
-					  _target.closest( "div.wccpf-cart-edit-wrapper" ).parent().find("li.wcff_cart_editor_field").show().html( '<p>'+ decodeURI( response.payload.value ) +'</p>' );
-				  }
-			  }					
+				  $edited.empty().append($("<p>").text(editedValue)).show();
+			  }
 			  _target.closest( "ul.wccpf-cart-editor-ul" ).addClass("wccpf-is-editable-yes");
 			  _target.closest( "div.wccpf-cart-edit-wrapper" ).remove();
 		  } else {
-			  _target.prev().html( response.payload.message ).show();
+			  _target.prev().text( response.payload.message ).show();
 		  }
 	  } else if( _action == "wcff_ajax_get_negotiated_price" ){
 		  var parent = typeof _target == "undefined" ? $( "div.product" ) : wccpf_opt.is_page == "single" ? _target.closest( "div.product" ) :  _target.closest( "li.product" );

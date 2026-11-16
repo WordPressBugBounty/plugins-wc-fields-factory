@@ -231,22 +231,24 @@ class wcff_order_handler {
             $_field= wcff()->locale->localize_field($_field);
         }
         
-        $_val = (($_val && isset($_val["user_val"])) ? $_val["user_val"] : $_val);
-        if ($_field["type"] != "file" && $_field["type"] != "checkbox") {
-            $value = stripslashes($_val);
-        } else if($_field["type"] == "checkbox") {
-            $value = (is_array($_val) ? implode(", ", $_val) : stripslashes($_val));
+        $_val = (($_val && is_array($_val) && isset($_val["user_val"])) ? $_val["user_val"] : $_val);
+        if ($_field["type"] != "file") {
+            $value = wcff_plain_submitted_text($_val);
         } else {
-            if ($_field["multi_file"] == "yes") {
-                $furls = array();
-                $farray = json_decode($_val, true);
+            $furls = array();
+            $farray = json_decode(is_string($_val) ? $_val : '', true);
+            $is_multi_file = isset($_field["multi_file"]) ? $_field["multi_file"] : "no";
+            if ($is_multi_file == "yes" && is_array($farray)) {
                 foreach ($farray as $fobj) {
-                    $furls[] = $fobj["url"];
+                    if (is_array($fobj) && isset($fobj["url"])) {
+                        $furls[] = esc_url_raw($fobj["url"]);
+                    }
                 }
-                $value = implode(", ", $furls);
+                $value = implode(", ", array_filter($furls));
+            } else if (is_array($farray) && isset($farray["url"])) {
+                $value = esc_url_raw($farray["url"]);
             } else {
-                $fobj = json_decode($_val, true);
-                $value = $fobj["url"];
+                $value = '';
             }
         }
         $wcff_order_item_meta = array(

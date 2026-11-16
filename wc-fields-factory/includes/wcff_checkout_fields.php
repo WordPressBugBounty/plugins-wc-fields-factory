@@ -135,9 +135,14 @@ class wcff_checkout_fields {
             
         }
         
-        if (isset($_REQUEST["post_type"]) && $_REQUEST["post_type"] == "wcccf") {
-            $url = get_edit_post_link(get_posts($checkout_args)[0]->ID);
-            echo '<script>window.location = "'.urldecode($url).'".replace(/&amp;/g, "&");</script>';
+        if (isset($_REQUEST["post_type"]) && $_REQUEST["post_type"] == "wcccf" && current_user_can("manage_woocommerce")) {
+            $posts = get_posts($checkout_args);
+            if (!empty($posts)) {
+                $url = get_edit_post_link($posts[0]->ID, 'raw');
+                if ($url) {
+                    echo '<script>window.location = ' . wp_json_encode($url) . '.replace(/&amp;/g, "&");</script>';
+                }
+            }
         }
         
     }
@@ -387,13 +392,8 @@ class wcff_checkout_fields {
             }
             foreach ($checkout_fields as $key => $field) { 
                 if (is_array($field) && isset($field["key"]) && isset($_REQUEST[esc_attr($field["key"])])) {
-                    $vals = "";
                     $value = $_REQUEST[esc_attr($field["key"])];
-                    if ($field["type"] == "checkbox") {
-                        $vals = (is_array($value) ? implode(", ", $value) : esc_html(stripslashes($value)));
-                    } else {
-                        $vals = $value;
-                    }                                     
+                    $vals = wcff_plain_submitted_text($value);                                     
                     $order->add_meta_data('_' . $groupkey . "_" .esc_attr($field["key"]), $vals);
                 }
             }
@@ -436,9 +436,10 @@ class wcff_checkout_fields {
 
             $send = isset($field["email_meta"]) ? $field["email_meta"] : "yes";
             if ($send == "yes") {
+                $meta_value = $_order->get_meta("_custom_". $key, true );
                 $_fields[] = array(
                     "label" => $field["label"],
-                    "value" => $_order->get_meta("_custom_". $key, true )
+                    "value" => esc_html(is_scalar($meta_value) ? (string) $meta_value : "")
                 );
             }            
 
